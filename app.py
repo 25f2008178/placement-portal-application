@@ -1,9 +1,10 @@
-from flask import Flask, render_template
+from app import create_app
+from app.extensions import db
+from app.models import Model
 
-app = Flask(__name__)
+app = create_app()
+with app.app_context():
+    Model.metadata.create_all(db.engine)
 
-
-@app.route("/")
-@app.route("/<name>")
-def hello(name=None):
-    return render_template("index.html", person=name)
+if __name__ == "__main__":
+    app.run()
