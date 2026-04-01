@@ -1,7 +1,10 @@
 from flask import Blueprint, render_template
 from flask_security.decorators import auth_required, roles_accepted
 
+from .api import api_bp
+
 main = Blueprint("main", __name__)
+main.register_blueprint(api_bp, url_prefix="/api")
 
 
 @main.route("/")

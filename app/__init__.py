@@ -7,6 +7,7 @@ from .extensions import db, security
 from .forms import ExtendedRegisterForm
 from .models import Role, User
 from .routes import main
+from .signals import setup_signals
 
 
 def create_app():
@@ -30,5 +31,6 @@ def create_app():
     security.init_app(app, user_datastore, register_form=ExtendedRegisterForm)
 
     app.register_blueprint(main)
+    setup_signals(app, user_datastore)
 
     return app

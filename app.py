@@ -16,9 +16,9 @@ with app.app_context():
 
     Model.metadata.create_all(db.engine)
 
-    security.datastore.find_or_create_role("student")
-    security.datastore.find_or_create_role("company")
-    security.datastore.find_or_create_role("admin")
+    student_role = security.datastore.find_or_create_role("student")
+    company_role = security.datastore.find_or_create_role("company")
+    admin_role = security.datastore.find_or_create_role("admin")
 
     if not security.datastore.find_user(email=admin_email):
         admin = security.datastore.create_user(
@@ -27,7 +27,7 @@ with app.app_context():
             email=admin_email,
             password=admin_password,
         )
-        security.datastore.add_role_to_user(admin, "admin")
+        security.datastore.add_role_to_user(admin, admin_role)
     security.datastore.commit()
 
 
