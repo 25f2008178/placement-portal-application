@@ -3,4 +3,4 @@ from wtforms import StringField, validators
 
 
 class ExtendedRegisterForm(RegisterFormV2):
-    name = StringField("name", validators=[validators.DataRequired()])
+    name = StringField("Name", validators=[validators.DataRequired()])

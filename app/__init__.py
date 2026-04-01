@@ -1,16 +1,12 @@
 import os
 
-from dotenv import load_dotenv
 from flask import Flask
 from flask_security.datastore import SQLAlchemyUserDatastore
-from flask_security.utils import hash_password
 
 from .extensions import db, security
 from .forms import ExtendedRegisterForm
 from .models import Role, User
 from .routes import main
-
-load_dotenv()
 
 
 def create_app():
@@ -22,8 +18,9 @@ def create_app():
     app.config["SECURITY_PASSWORD_SALT"] = os.environ.get("SECURITY_PASSWORD_SALT")
     app.config["SECURITY_REGISTERABLE"] = True
     app.config["SECURITY_SEND_REGISTER_EMAIL"] = False
-    app.config["SECURIT_USE_REGISTER_V2"] = True
+    app.config["SECURITY_USE_REGISTER_V2"] = True
 
+    app.config["SECURITY_USERNAME_REQUIRED"] = True
     app.config["SECURITY_RECOVERABLE"] = True
     app.config["SECURITY_CHANGEABLE"] = True
     app.config["SECURITY_CONFIRMABLE"] = False
