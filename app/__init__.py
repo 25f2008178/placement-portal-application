@@ -26,6 +26,8 @@ def create_app():
     app.config["SECURITY_CHANGEABLE"] = True
     app.config["SECURITY_CONFIRMABLE"] = False
 
+    app.config["WTF_CSRF_ENABLED"] = False
+
     db.init_app(app)
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
     security.init_app(app, user_datastore, register_form=ExtendedRegisterForm)
