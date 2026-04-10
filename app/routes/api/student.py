@@ -20,6 +20,7 @@ def get_companies():
                 "id": i.id,
                 "name": i.name,
                 "email": i.email,
+                "profile_pic": i.profile_pic,
                 "is_active": i.is_active,
             }
         )
@@ -41,6 +42,7 @@ def search_by_id(id):
                     "id": i.id,
                     "name": i.name,
                     "email": i.email,
+                    "profile_pic": i.profile_pic,
                     "is_active": i.is_active,
                 }
             )
@@ -62,6 +64,7 @@ def search_by_name(name):
                     "id": i.id,
                     "name": i.name,
                     "email": i.email,
+                    "profile_pic": i.profile_pic,
                     "is_active": i.is_active,
                 }
             )
@@ -83,6 +86,7 @@ def search_by_email(email):
                     "id": i.id,
                     "name": i.name,
                     "email": i.email,
+                    "profile_pic": i.profile_pic,
                     "is_active": i.is_active,
                 }
             )
@@ -98,7 +102,7 @@ def activate_student(id):
         security.datastore.activate_user(user)
         security.datastore.commit()
         return id, 200
-    return "ID not found", 404
+    return {"error": "ID not found"}, 404
 
 
 @student_bp.route("/deactivate/<id>", methods=["PATCH"])
@@ -109,4 +113,4 @@ def deactivate_student(id):
         security.datastore.deactivate_user(user)
         security.datastore.commit()
         return id, 200
-    return "ID not found", 404
+    return {"error": "ID not found"}, 404

@@ -1,6 +1,9 @@
-from flask import Blueprint, request
+import os
+
+from flask import Blueprint, current_app, request
 from flask_login import current_user
 from flask_security.decorators import roles_accepted
+from werkzeug.utils import secure_filename
 
 from app.extensions import db
 from app.models import Application, ApplicationStatus, RecruitmentDrive
@@ -28,12 +31,35 @@ def apply_to_drive(drive_id):
     if existing_application:
         return {"error": "You have already applied to this drive"}, 400
 
-    data = request.get_json() or {}
-    resume_link = data.get("resume_link")
+    resume_link = None
+    if "resume" in request.files:
+        resume_file = request.files["resume"]
+        if (
+            resume_file
+            and resume_file.filename
+            and resume_file.filename.endswith(".pdf")
+        ):
+            filename = secure_filename(resume_file.filename)
+            filename = f"drive_{drive.id}_student_{current_user.id}_{filename}"
+            static = current_app.static_folder
+            if not static:
+                static = "static"
+            upload_folder = os.path.join(static, "uploads/resumes")
+            os.makedirs(upload_folder, exist_ok=True)
+            file_path = os.path.join(upload_folder, filename)
+            resume_file.save(file_path)
+            resume_link = f"/static/uploads/resumes/{filename}"
+    else:
+        data = request.get_json(silent=True) or {}
+        resume_link = data.get("resume_link")
+
+    if not resume_link:
+        return {"error": "A PDF resume is required to apply"}, 400
 
     new_application = Application(
         drive_id=drive.id,
         student_id=current_user.id,
+        student_email=current_user.email,
         status=ApplicationStatus.APPLIED,
         resume_link=resume_link,
     )

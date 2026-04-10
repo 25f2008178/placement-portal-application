@@ -58,10 +58,10 @@ const viewApplications = async (driveId) => {
                         <td><span class="badge bg-secondary">${app.status}</span></td>
                         <td class="text-end">
                             <select class="form-select form-select-sm d-inline-block w-auto"
-                                onchange="updateStatus(${app.id}, this.value)">
+                                onchange="updateStatus(${app.application_id}, this.value)">
                                 <option value="" selected disabled>Update Status</option>
                                 <option value="Shortlisted">Shortlist</option>
-                                <option value="Waiting">Waiting</option>
+                                <option value="Selected">Select</option>
                                 <option value="Rejected">Reject</option>
                             </select>
                         </td>
@@ -190,7 +190,14 @@ const updateStatus = async (appId, newStatus) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ status: newStatus }),
         });
-        if (res.ok) alert(`Application ${newStatus}`);
+        if (res.ok) {
+            alert(`Application ${newStatus}`);
+            fetchDrives("active");
+            detailModal.hide();
+        } else {
+            const data = await res.json();
+            alert(`Error: ${data.error || "Could not update status"}`);
+        }
     } catch (err) {
         alert(`Failed to update status. ${err}`);
     }
@@ -211,12 +218,10 @@ document
             });
 
             if (response.ok) {
-                // Close modal
                 const modalInstance = bootstrap.Modal.getInstance(
                     document.getElementById("createDriveModal"),
                 );
                 modalInstance.hide();
-                // Refresh the list
                 fetchDrives("active");
                 e.target.reset();
             } else {

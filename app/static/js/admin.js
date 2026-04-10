@@ -11,6 +11,8 @@ const detailModal = new bootstrap.Modal(document.getElementById("detailModal"));
 const modalBody = document.getElementById("modalBody");
 const modalTitle = document.getElementById("detailModalLabel");
 
+let placementChartInstance = null;
+
 const viewDetails = async (id, type) => {
     modalBody.innerHTML =
         '<div class="text-center"><div class="spinner-border text-primary"></div></div>';
@@ -24,6 +26,10 @@ const viewDetails = async (id, type) => {
 
             modalTitle.innerText = `Drive Details: ${drive.title}`;
             modalBody.innerHTML = `
+        <div class="mb-3 text-center">
+            <img src="/static/uploads/profiles/${drive.company_profile_pic}" alt="${drive.company_name} logo" class="img-fluid rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+            <p class="mt-2 text-muted fw-bold">${drive.company_name}</p>
+        </div>
         <h6><strong>Requirements:</strong> ${drive.requirements || "No requirements provided."}</h6>
         <p><strong>Description:</strong> ${drive.description}</p>
         <hr>
@@ -58,6 +64,9 @@ const viewDetails = async (id, type) => {
             const company = data[0];
             modalTitle.innerText = company.name;
             modalBody.innerHTML = `
+        <div class="mb-3 text-center">
+            <img src="/static/uploads/profiles/${company.profile_pic}" alt="${company.name} logo" class="img-fluid rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+        </div>
         <p><strong>Email:</strong> ${company.email}</p>
         <p><strong>Status:</strong> ${company.is_active ? "Verified" : "Pending"}</p>
       `;
@@ -67,6 +76,9 @@ const viewDetails = async (id, type) => {
             const student = data[0];
             modalTitle.innerText = student.name;
             modalBody.innerHTML = `
+        <div class="mb-3 text-center">
+            <img src="/static/uploads/profiles/${student.profile_pic}" alt="${student.name} photo" class="img-fluid rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+        </div>
         <p><strong>Email:</strong> ${student.email}</p>
         <p><strong>Status:</strong> ${student.is_active ? "Verified" : "Pending"}</p>
       `;
@@ -83,6 +95,9 @@ const renderCompanies = (companies) => {
     companyNav.classList.add("active");
     studentNav.classList.remove("active");
     drivesNav.classList.remove("active");
+
+    const statsContainer = document.getElementById("statsContainer");
+    if (statsContainer) statsContainer.classList.add("d-none");
 
     companies.forEach((company) => {
         const actionBtn = company.is_active
@@ -108,6 +123,9 @@ const renderStudents = (students) => {
     companyNav.classList.remove("active");
     studentNav.classList.add("active");
     drivesNav.classList.remove("active");
+
+    const statsContainer = document.getElementById("statsContainer");
+    if (statsContainer) statsContainer.classList.add("d-none");
 
     students.forEach((student) => {
         const actionBtn = student.is_active
@@ -156,6 +174,72 @@ const renderDrives = (drives) => {
                 <td><button class="btn btn-sm btn-info text-white" onclick="viewDetails('${drive.id}', 'drive')">View</button></td>
             </tr>`;
     });
+
+    const statsContainer = document.getElementById("statsContainer");
+    if (statsContainer) {
+        statsContainer.classList.remove("d-none");
+
+        const approvedDrives = drives.filter(d => d.is_approved);
+        const driveTitles = approvedDrives.map(d => d.title || `Drive #${d.id}`);
+        
+        const appliedData = approvedDrives.map(d => d.application_stats?.applied || 0);
+        const shortlistedData = approvedDrives.map(d => d.application_stats?.shortlisted || 0);
+        const selectedData = approvedDrives.map(d => d.application_stats?.selected || 0);
+        const rejectedData = approvedDrives.map(d => d.application_stats?.rejected || 0);
+
+        const ctx = document.getElementById('placementChart').getContext('2d');
+        if (placementChartInstance) {
+            placementChartInstance.destroy();
+        }
+        placementChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: driveTitles,
+                datasets: [
+                    {
+                        label: 'Applied',
+                        data: appliedData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                    },
+                    {
+                        label: 'Shortlisted',
+                        data: shortlistedData,
+                        backgroundColor: 'rgba(255, 193, 7, 0.7)'
+                    },
+                    {
+                        label: 'Selected',
+                        data: selectedData,
+                        backgroundColor: 'rgba(25, 135, 84, 0.7)'
+                    },
+                    {
+                        label: 'Rejected',
+                        data: rejectedData,
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Application Status per Approved Drive',
+                        font: { size: 16 }
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: { 
+                        stacked: true,
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1 } 
+                    }
+                }
+            }
+        });
+    }
 };
 
 const fetchData = async (type) => {

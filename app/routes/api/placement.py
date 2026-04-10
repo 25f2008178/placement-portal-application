@@ -3,7 +3,7 @@ from flask_login import current_user
 from flask_security.decorators import roles_accepted
 
 from app.extensions import db
-from app.models import RecruitmentDrive
+from app.models import Application, RecruitmentDrive
 
 placement_bp = Blueprint("placement", __name__)
 
@@ -15,6 +15,14 @@ def get_drives():
     response = []
 
     for i in drives:
+        status_counts = {"applied": 0, "shortlisted": 0, "selected": 0, "rejected": 0}
+        for app in i.applications:
+            val = app.status.value.lower()
+            if val in status_counts:
+                status_counts[val] += 1
+            else:
+                status_counts[val] = 1
+
         response.append(
             {
                 "id": i.id,
@@ -24,6 +32,10 @@ def get_drives():
                 "is_approved": i.is_approved,
                 "is_closed": i.is_closed,
                 "company_id": i.company_id,
+                "company_name": i.company.name,
+                "company_profile_pic": i.company.profile_pic,
+                "application_count": len(i.applications),
+                "application_stats": status_counts,
                 "created_at": i.created_at,
             }
         )
@@ -53,9 +65,9 @@ def create_drive():
             return str(new_drive.id), 201
         except Exception as e:
             db.session.rollback()
-            return str(e), 500
+            return {"error": str(e)}, 500
     else:
-        return "Company isn't active", 403
+        return {"error": "Company isn't active"}, 403
 
 
 @placement_bp.route("/my_drives", methods=["GET"])
@@ -100,6 +112,9 @@ def get_drive_detail(drive_id):
                 "application_id": app.id,
                 "student_id": app.student_id,
                 "student_name": app.student.name,
+                "student_email": app.student_email
+                if app.student_email
+                else app.student.email,
                 "status": app.status.value,
                 "resume_link": app.resume_link,
                 "applied_at": app.created_at.isoformat(),
@@ -111,6 +126,8 @@ def get_drive_detail(drive_id):
         "title": drive.title,
         "description": drive.description,
         "requirements": drive.requirements,
+        "company_name": drive.company.name,
+        "company_profile_pic": drive.company.profile_pic,
         "is_approved": drive.is_approved,
         "is_closed": drive.is_closed,
         "created_at": drive.created_at.isoformat(),
@@ -155,7 +172,7 @@ def reject_drive(id):
         return id
     except Exception as e:
         db.session.rollback()
-        return str(e), 500
+        return {"error": str(e)}, 500
 
 
 @placement_bp.route("/edit_drive/<id>", methods=["PUT"])
@@ -190,7 +207,7 @@ def edit_drive(id):
             return id
         except Exception as e:
             db.session.rollback()
-            return str(e), 500
+            return {"error": str(e)}, 500
     else:
         return {"error": "You do not own this recruitment drive"}, 401
 
@@ -206,10 +223,11 @@ def remove_drive(id):
             db.session.query(RecruitmentDrive).filter(
                 RecruitmentDrive.id == id
             ).delete()
+            db.session.query(Application).filter(Application.drive_id == id).delete()
             db.session.commit()
             return id
         except Exception as e:
             db.session.rollback()
-            return str(e), 500
+            return {"error": str(e)}, 500
     else:
         return {"error": "You do not own this recruitment drive"}, 401

@@ -25,9 +25,8 @@ def setup_signals(app: Flask, user_datastore: SQLAlchemyUserDatastore):
                 if not static:
                     static = "static"
 
-                upload_path = os.path.join(static, "uploads/profiles")
-                if not os.path.exists(upload_path):
-                    os.makedirs(upload_path)
+                upload_path = os.path.join(static, "uploads", "profiles")
+                os.makedirs(upload_path, exist_ok=True)
 
                 file.save(os.path.join(upload_path, filename))
                 user.profile_pic = filename

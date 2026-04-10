@@ -62,6 +62,7 @@ class Application(Model):
         ForeignKey("recruitment_drive.id"), nullable=False
     )
     student_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    student_email: Mapped[str] = mapped_column(String(255), nullable=False)
 
     status: Mapped[ApplicationStatus] = mapped_column(
         Enum(ApplicationStatus), default=ApplicationStatus.APPLIED, nullable=False

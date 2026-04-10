@@ -32,6 +32,6 @@ def company_dashboard():
 
 
 @main.route("/student")
-@roles_accepted("company")
+@roles_accepted("student")
 def student_dashboard():
     return render_template("student_dashboard.html")
