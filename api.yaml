@@ -1,0 +1,572 @@
+openapi: 3.0.0
+info:
+  title: Placement Portal API
+  version: 1.0.0
+  description: API documentation for the Placement Portal Application
+
+servers:
+  - url: /api
+    description: Main API Server
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session
+  schemas:
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        profile_pic:
+          type: string
+        is_active:
+          type: boolean
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        profile_pic:
+          type: string
+        is_active:
+          type: boolean
+    Drive:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        requirements:
+          type: string
+        is_approved:
+          type: boolean
+        is_closed:
+          type: boolean
+        company_id:
+          type: integer
+        company_name:
+          type: string
+        company_profile_pic:
+          type: string
+        application_count:
+          type: integer
+        application_stats:
+          type: object
+          properties:
+            applied:
+              type: integer
+            shortlisted:
+              type: integer
+            selected:
+              type: integer
+            rejected:
+              type: integer
+        created_at:
+          type: string
+          format: date-time
+
+paths:
+  /company/get_companies:
+    get:
+      tags: [Company]
+      summary: Retrieve all companies
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of companies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+
+  /company/search_companies/by_id/{id}:
+    get:
+      tags: [Company]
+      summary: Search companies by ID
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching companies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+
+  /company/search_companies/by_name/{name}:
+    get:
+      tags: [Company]
+      summary: Search companies by name
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching companies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+
+  /company/search_companies/by_email/{email}:
+    get:
+      tags: [Company]
+      summary: Search companies by email
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching companies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Company'
+
+  /company/activate/{id}:
+    patch:
+      tags: [Company]
+      summary: Activate a company
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Activated successfully
+        '404':
+          description: ID not found
+
+  /company/deactivate/{id}:
+    patch:
+      tags: [Company]
+      summary: Deactivate a company
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deactivated successfully
+        '404':
+          description: ID not found
+
+  /student/get_students:
+    get:
+      tags: [Student]
+      summary: Retrieve all students
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+
+  /student/search_students/by_id/{id}:
+    get:
+      tags: [Student]
+      summary: Search students by ID
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+
+  /student/search_students/by_name/{name}:
+    get:
+      tags: [Student]
+      summary: Search students by name
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+
+  /student/search_students/by_email/{email}:
+    get:
+      tags: [Student]
+      summary: Search students by email
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+
+  /student/activate/{id}:
+    patch:
+      tags: [Student]
+      summary: Activate a student
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Activated successfully
+        '404':
+          description: ID not found
+
+  /student/deactivate/{id}:
+    patch:
+      tags: [Student]
+      summary: Deactivate a student
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deactivated successfully
+        '404':
+          description: ID not found
+
+  /placement/get_drives:
+    get:
+      tags: [Placement]
+      summary: Retrieve all recruitment drives
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of recruitment drives
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Drive'
+
+  /placement/create_drive:
+    post:
+      tags: [Placement]
+      summary: Create a new recruitment drive
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                requirements:
+                  type: string
+      responses:
+        '201':
+          description: Created successfully
+        '403':
+          description: Company is not active
+        '500':
+          description: Server error
+
+  /placement/my_drives:
+    get:
+      tags: [Placement]
+      summary: Retrieve drives created by the current company
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of company drives
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /placement/get_drives/{drive_id}:
+    get:
+      tags: [Placement]
+      summary: Get details of a specific drive
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: drive_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Drive details including applications
+        '404':
+          description: Drive not found or access denied
+
+  /placement/approve_drive/{id}:
+    patch:
+      tags: [Placement]
+      summary: Approve a drive
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Approved successfully
+        '401':
+          description: Company is not active
+        '404':
+          description: Drive not found
+
+  /placement/reject_drive/{id}:
+    patch:
+      tags: [Placement]
+      summary: Reject a drive
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rejected successfully
+
+  /placement/edit_drive/{id}:
+    put:
+      tags: [Placement]
+      summary: Edit a drive
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                requirements:
+                  type: string
+                is_closed:
+                  type: boolean
+      responses:
+        '200':
+          description: Edited successfully
+        '401':
+          description: Unauthorized
+
+  /placement/remove_drive/{id}:
+    delete:
+      tags: [Placement]
+      summary: Remove a drive
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Removed successfully
+        '401':
+          description: Unauthorized
+
+  /application/apply/{drive_id}:
+    post:
+      tags: [Application]
+      summary: Apply to a recruitment drive
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: drive_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                resume:
+                  type: string
+                  format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                resume_link:
+                  type: string
+      responses:
+        '201':
+          description: Application submitted successfully
+        '400':
+          description: Bad request (closed, already applied, missing resume)
+        '404':
+          description: Drive not found
+
+  /application/my-applications:
+    get:
+      tags: [Application]
+      summary: Get applications of the current student
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    drive_title:
+                      type: string
+                    status:
+                      type: string
+                    applied_at:
+                      type: string
+                      format: date-time
+
+  /application/update-status/{application_id}:
+    patch:
+      tags: [Application]
+      summary: Update status of an application
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: application_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [APPLIED, SHORTLISTED, SELECTED, REJECTED]
+      responses:
+        '200':
+          description: Status updated
+        '400':
+          description: Invalid status
+        '403':
+          description: Unauthorized
+        '404':
+          description: Application not found
