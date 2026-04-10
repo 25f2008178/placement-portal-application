@@ -23,3 +23,15 @@ def index():
 @roles_accepted("admin")
 def admin_dashboard():
     return render_template("admin_dashboard.html")
+
+
+@main.route("/company")
+@roles_accepted("company")
+def company_dashboard():
+    return render_template("company_dashboard.html")
+
+
+@main.route("/student")
+@roles_accepted("company")
+def student_dashboard():
+    return render_template("student_dashboard.html")

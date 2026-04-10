@@ -58,7 +58,7 @@ def create_drive():
         return "Company isn't active", 403
 
 
-@placement_bp.route("/my-drives", methods=["GET"])
+@placement_bp.route("/my_drives", methods=["GET"])
 @roles_accepted("company")
 def get_company_drives():
     drives = current_user.drives
@@ -83,12 +83,14 @@ def get_company_drives():
     return results
 
 
-@placement_bp.route("/my-drives/<int:drive_id>", methods=["GET"])
-@roles_accepted("company")
+@placement_bp.route("/get_drives/<int:drive_id>", methods=["GET"])
+@roles_accepted("company", "admin")
 def get_drive_detail(drive_id):
     drive = db.session.get(RecruitmentDrive, drive_id)
 
-    if not drive or drive.company_id != current_user.id:
+    if not drive or (
+        drive.company_id != current_user.id and not current_user.has_role("admin")
+    ):
         return {"error": "Drive not found or access denied"}, 404
 
     app_list = []
@@ -121,14 +123,25 @@ def get_drive_detail(drive_id):
 @roles_accepted("admin")
 def approve_drive(id):
     try:
-        db.session.query(RecruitmentDrive).filter(RecruitmentDrive.id == id).update(
-            {RecruitmentDrive.is_approved: True}
+        drive_query = db.session.query(RecruitmentDrive).filter(
+            RecruitmentDrive.id == id
         )
+        drive = drive_query.first()
+
+        if not drive:
+            return {"error": "Drive not found"}, 404
+
+        company = drive.company
+
+        if not company.is_active:
+            return {"error": "Company is not active"}, 401
+
+        drive_query.update({RecruitmentDrive.is_approved: True})
         db.session.commit()
         return id
     except Exception as e:
         db.session.rollback()
-        return str(e), 500
+        return {"error": str(e)}, 500
 
 
 @placement_bp.route("/reject_drive/<id>", methods=["PATCH"])

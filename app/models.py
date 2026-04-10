@@ -20,6 +20,9 @@ class Role(Model, sqla.FsRoleMixin):
 class User(Model, sqla.FsUserMixin):
     __tablename__ = "user"
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    profile_pic: Mapped[str] = mapped_column(
+        String(255), nullable=False, default="default_avatar.png"
+    )
     drives: Mapped[list["RecruitmentDrive"]] = relationship(back_populates="company")
     applications: Mapped[list["Application"]] = relationship(back_populates="student")
 

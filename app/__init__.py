@@ -21,12 +21,10 @@ def create_app():
     app.config["SECURITY_SEND_REGISTER_EMAIL"] = False
     app.config["SECURITY_USE_REGISTER_V2"] = True
 
-    app.config["SECURITY_USERNAME_REQUIRED"] = True
-    app.config["SECURITY_RECOVERABLE"] = True
-    app.config["SECURITY_CHANGEABLE"] = True
+    app.config["SECURITY_USERNAME_REQUIRED"] = False
+    app.config["SECURITY_RECOVERABLE"] = False
+    app.config["SECURITY_CHANGEABLE"] = False
     app.config["SECURITY_CONFIRMABLE"] = False
-
-    app.config["WTF_CSRF_ENABLED"] = False
 
     db.init_app(app)
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)

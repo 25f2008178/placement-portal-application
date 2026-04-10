@@ -107,7 +107,7 @@ def deactivate_company(id):
     user = security.datastore.find_user(id=id)
     if user:
         for d in getattr(user, "drives", []):
-            d.is_closed = True
+            d.is_approved = False
 
         security.datastore.deactivate_user(user)
         security.datastore.commit()
