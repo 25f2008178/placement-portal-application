@@ -182,7 +182,7 @@ def edit_drive(id):
                     if requirements
                     else drive.requirements,
                     RecruitmentDrive.is_closed: is_closed
-                    if is_closed
+                    if is_closed is not None
                     else drive.is_closed,
                 }
             )
@@ -192,7 +192,7 @@ def edit_drive(id):
             db.session.rollback()
             return str(e), 500
     else:
-        return "You do not own this recruitment drive", 401
+        return {"error": "You do not own this recruitment drive"}, 401
 
 
 @placement_bp.route("/remove_drive/<id>", methods=["DELETE"])
@@ -212,4 +212,4 @@ def remove_drive(id):
             db.session.rollback()
             return str(e), 500
     else:
-        return "You do not own this recruitment drive", 401
+        return {"error": "You do not own this recruitment drive"}, 401
