@@ -10,8 +10,55 @@ const drivesNav = document.getElementById("drivesNav");
 const detailModal = new bootstrap.Modal(document.getElementById("detailModal"));
 const modalBody = document.getElementById("modalBody");
 const modalTitle = document.getElementById("detailModalLabel");
+const searchContainer = document.getElementById("searchContainer");
 
 let placementChartInstance = null;
+let currentDataType = "companies";
+
+const handleSearch = async (event) => {
+    event.preventDefault();
+    const searchType = document.getElementById("searchType").value;
+    const searchInput = document.getElementById("searchInput").value.trim();
+
+    if (!searchInput) {
+        fetchData(currentDataType);
+        return;
+    }
+
+    loader.style.display = "block";
+    tableBody.innerHTML = "";
+
+    let baseUrl = "";
+    if (currentDataType === "companies") {
+        baseUrl = "/api/company/search_companies";
+    } else if (currentDataType === "students") {
+        baseUrl = "/api/student/search_students";
+    } else {
+        loader.style.display = "none";
+        return;
+    }
+
+    const url = `${baseUrl}/by_${searchType}/${encodeURIComponent(searchInput)}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (currentDataType === "companies") renderCompanies(data);
+        if (currentDataType === "students") renderStudents(data);
+    } catch (error) {
+        console.error(error);
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error connecting to "${url}": ${error.message}</td></tr>`;
+    } finally {
+        loader.style.display = "none";
+    }
+};
+
+const clearSearch = () => {
+    document.getElementById("searchInput").value = "";
+    fetchData(currentDataType);
+};
+
 
 const viewDetails = async (id, type) => {
     modalBody.innerHTML =
@@ -98,6 +145,7 @@ const renderCompanies = (companies) => {
 
     const statsContainer = document.getElementById("statsContainer");
     if (statsContainer) statsContainer.classList.add("d-none");
+    if (searchContainer) searchContainer.classList.remove("d-none");
 
     companies.forEach((company) => {
         const actionBtn = company.is_active
@@ -126,6 +174,7 @@ const renderStudents = (students) => {
 
     const statsContainer = document.getElementById("statsContainer");
     if (statsContainer) statsContainer.classList.add("d-none");
+    if (searchContainer) searchContainer.classList.remove("d-none");
 
     students.forEach((student) => {
         const actionBtn = student.is_active
@@ -152,6 +201,7 @@ const renderDrives = (drives) => {
     companyNav.classList.remove("active");
     studentNav.classList.remove("active");
     drivesNav.classList.add("active");
+    if (searchContainer) searchContainer.classList.add("d-none");
 
     drives.forEach(async (drive) => {
         const response = await fetch(
@@ -243,6 +293,7 @@ const renderDrives = (drives) => {
 };
 
 const fetchData = async (type) => {
+    currentDataType = type;
     loader.style.display = "block";
     tableBody.innerHTML = "";
 

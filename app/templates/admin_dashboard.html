@@ -102,6 +102,22 @@
                         ></div>
                     </div>
 
+                    <div class="row mb-3 d-none" id="searchContainer">
+                        <div class="col-md-8">
+                            <form class="d-flex" id="searchForm" onsubmit="handleSearch(event)">
+                                <select class="form-select me-2" id="searchType" style="width: auto;">
+                                    <option value="name">Name</option>
+                                    <option value="email">Email</option>
+                                    <option value="id">ID</option>
+                                </select>
+                                <input class="form-control me-2" id="searchInput" type="search" placeholder="Search..." aria-label="Search">
+                                <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i> Search</button>
+                                <button class="btn btn-outline-secondary ms-2" type="button" onclick="clearSearch()"><i class="bi bi-x-circle"></i> Clear</button>
+                            </form>
+                        </div>
+                    </div>
+
+
                     <div class="row mb-4 d-none" id="statsContainer">
                         <div class="col-md-9 mx-auto">
                             <div class="card shadow-sm p-3">
