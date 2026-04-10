@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_security.decorators import roles_accepted
 
-from app.extensions import security
+from app.extensions import db, security
 from app.models import User
 
 company_bp = Blueprint("company", __name__)
@@ -106,6 +106,9 @@ def activate_company(id):
 def deactivate_company(id):
     user = security.datastore.find_user(id=id)
     if user:
+        for d in getattr(user, "drives", []):
+            d.is_closed = True
+
         security.datastore.deactivate_user(user)
         security.datastore.commit()
         return id, 200

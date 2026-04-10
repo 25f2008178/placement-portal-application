@@ -9,7 +9,7 @@ placement_bp = Blueprint("placement", __name__)
 
 
 @placement_bp.route("/get_drives")
-@roles_accepted("admin", "students")
+@roles_accepted("admin", "student")
 def get_drives():
     drives = db.session.query(RecruitmentDrive).all()
     response = []
@@ -56,6 +56,65 @@ def create_drive():
             return str(e), 500
     else:
         return "Company isn't active", 403
+
+
+@placement_bp.route("/my-drives", methods=["GET"])
+@roles_accepted("company")
+def get_company_drives():
+    drives = current_user.drives
+
+    if not drives:
+        return []
+
+    results = []
+    for drive in drives:
+        results.append(
+            {
+                "id": drive.id,
+                "title": drive.title,
+                "description": drive.description,
+                "is_approved": drive.is_approved,
+                "is_closed": drive.is_closed,
+                "created_at": drive.created_at.isoformat(),
+                "application_count": len(drive.applications),
+            }
+        )
+
+    return results
+
+
+@placement_bp.route("/my-drives/<int:drive_id>", methods=["GET"])
+@roles_accepted("company")
+def get_drive_detail(drive_id):
+    drive = db.session.get(RecruitmentDrive, drive_id)
+
+    if not drive or drive.company_id != current_user.id:
+        return {"error": "Drive not found or access denied"}, 404
+
+    app_list = []
+    for app in drive.applications:
+        app_list.append(
+            {
+                "application_id": app.id,
+                "student_id": app.student_id,
+                "student_name": app.student.name,
+                "status": app.status.value,
+                "resume_link": app.resume_link,
+                "applied_at": app.created_at.isoformat(),
+            }
+        )
+
+    return {
+        "id": drive.id,
+        "title": drive.title,
+        "description": drive.description,
+        "requirements": drive.requirements,
+        "is_approved": drive.is_approved,
+        "is_closed": drive.is_closed,
+        "created_at": drive.created_at.isoformat(),
+        "applications": app_list,
+        "total_applications": len(app_list),
+    }
 
 
 @placement_bp.route("/approve_drive/<id>", methods=["PATCH"])

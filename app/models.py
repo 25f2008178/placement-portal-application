@@ -45,10 +45,10 @@ class RecruitmentDrive(Model):
 
 
 class ApplicationStatus(enum.Enum):
-    APPLIED = "Applied"
-    SHORTLISTED = "Shortlisted"
-    SELECTED = "Selected"
-    REJECTED = "Rejected"
+    APPLIED = "applied"
+    SHORTLISTED = "shortlisted"
+    SELECTED = "selected"
+    REJECTED = "rejected"
 
 
 class Application(Model):
